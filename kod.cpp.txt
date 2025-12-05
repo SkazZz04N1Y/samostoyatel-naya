@@ -1,0 +1,79 @@
+#include <iostream>
+#include <set>
+#include <vector>
+#include <algorithm>
+#include <cassert>
+
+using namespace std;
+
+set<int> greedyVertexCover(vector<pair<int, int>>& edges) {
+    set<int> cover;
+    set<pair<int, int>> remainingEdges;
+    
+    // Инициализировать множество ребер
+    for (auto& edge : edges) {
+        int u = min(edge.first, edge.second);
+        int v = max(edge.first, edge.second);
+        remainingEdges.insert({u, v});
+    }
+    
+    while (!remainingEdges.empty()) {
+        // Выбрать первое ребро
+        auto it = remainingEdges.begin();
+        int u = it->first;
+        int v = it->second;
+        remainingEdges.erase(it);
+        
+        // Добавить обе вершины
+        cover.insert(u);
+cover.insert(v);
+        
+        // Удалить инцидентные ребра
+        auto edgeIt = remainingEdges.begin();
+        while (edgeIt != remainingEdges.end()) {
+            if (edgeIt->first == u  edgeIt->first == v  
+                edgeIt->second == u || edgeIt->second == v) {
+                edgeIt = remainingEdges.erase(edgeIt);
+            } else {
+                ++edgeIt;
+            }
+        }
+    }
+    
+    return cover;
+}
+
+int main() {
+    // Входные данные
+    vector<pair<int, int>> edges = {
+        {0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 5},
+        {5, 6}, {6, 7}, {7, 8}, {8, 9}, {9, 0}
+    };
+    
+    // Находим покрытие
+    set<int> cover = greedyVertexCover(edges);
+    
+    // Вывод результатов
+    cout << "Размер покрытия: " << cover.size() << endl;
+    cout << "Покрытие: ";
+    for (int v : cover) {
+        cout << v << " ";
+    }
+    cout << endl;
+    
+    // Проверка корректности
+    for (auto& edge : edges) {
+        int u = edge.first;
+        int v = edge.second;
+        assert(cover.count(u) > 0 || cover.count(v) > 0);
+    }
+    cout << "Все ребра покрыты ✓" << endl;
+    
+    // Оценка аппроксимации
+    int optimal = 5;
+    double approximation_ratio = (double)cover.size() / optimal;
+    cout << "Коэффициент аппроксимации: " << approximation_ratio << endl;
+    cout << "Условие α ≤ 2: " << (approximation_ratio <= 2 ? "выполнено" : "не выполнено") << endl;
+    
+    return 0;
+}
